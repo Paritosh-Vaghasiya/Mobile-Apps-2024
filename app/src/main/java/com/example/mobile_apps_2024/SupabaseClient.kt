@@ -1,6 +1,8 @@
 package com.example.mobile_apps_2024
 
-import io.supabase.client.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.gotrue.Auth
+import io.github.jan.supabase.postgrest.Postgrest
 
 object SupabaseClient {
     private const val SUPABASE_URL = "https://egzhuriimugvkjiauphl.supabase.co"
