@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    kotlin("plugin.serialization") version "2.0.10"
+    kotlin("plugin.serialization") version "1.9.20"
 }
 
 android {
@@ -64,7 +64,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:2.1.5"))
+    implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:2.5.0"))
     implementation(libs.io.github.jan.tennert.supabase.postgrest.kt2)
     implementation(libs.supabase.storage.kt)
     implementation(libs.gotrue.kt)

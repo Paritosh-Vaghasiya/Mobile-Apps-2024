@@ -11,6 +11,8 @@ import android.widget.EditText
 import android.widget.TextView
 import com.example.mobile_apps_2024.R
 import com.example.mobile_apps_2024.SupabaseClient
+import com.example.mobile_apps_2024.SupabaseClient.client
+
 
 class Signup : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,25 +35,27 @@ class Signup : AppCompatActivity() {
             val email = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            SupabaseClient.client.auth.signUp(email, password)
-                .thenAccept { session ->
-                    if(session != null){
-                        SupabaseClient.client.from("users").insert(
-                            mapOf(
-                                "id" to session.user.id,
-                                "firstName" to firstName,
-                                "lastName" to lastName,
-                                "city" to city,
-                                "email" to email,
-                            )
-                        ).thenAccept{
-                            startActivity(Intent(this, LoginActivity::class.java))
-                            finish()
-                        }
-                    } else {
-                        errorMessage.text = "Signup failed."
+            val user = SupabaseClient.client.auth.signUpWith(
+                email = email,
+                password = password
+            ).thenAccept { session ->
+                if(session != null){
+                    SupabaseClient.client.from("users").insert(
+                        mapOf(
+                            "id" to session.user.id,
+                            "firstName" to firstName,
+                            "lastName" to lastName,
+                            "city" to city,
+                            "email" to email
+                        )
+                    ).thenAccept{
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
                     }
+                } else {
+                    errorMessage.text = "Signup failed."
                 }
+            }
         }
 
 
