@@ -9,9 +9,18 @@ import android.content.Intent
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.example.mobile_apps_2024.R
-import com.example.mobile_apps_2024.SupabaseClient
+import androidx.compose.ui.text.input.KeyboardType.Companion.Email
 import com.example.mobile_apps_2024.SupabaseClient.client
+import io.github.jan.supabase.gotrue.OtpType
+import io.github.jan.supabase.gotrue.admin.AdminUserUpdateBuilder
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.providers.builtin.Email
+import io.github.jan.supabase.postgrest.from
+import android.widget.Toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class Signup : AppCompatActivity() {
