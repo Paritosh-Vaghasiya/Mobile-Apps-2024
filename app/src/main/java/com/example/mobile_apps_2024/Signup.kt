@@ -44,34 +44,31 @@ class Signup : AppCompatActivity() {
             val email = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            val user = SupabaseClient.client.auth.signUpWith(
-                email = email,
-                password = password
-            ).thenAccept { session ->
-                if(session != null){
-                    SupabaseClient.client.from("users").insert(
-                        mapOf(
-                            "id" to session.user.id,
-                            "firstName" to firstName,
-                            "lastName" to lastName,
-                            "city" to city,
-                            "email" to email
-                        )
-                    ).thenAccept{
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    }
-                } else {
-                    errorMessage.text = "Signup failed."
-                }
+            if(firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || city.isEmpty() || password.isEmpty()){
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_LONG).show()
+            } else {
+                signupUser(firstName,lastName,email,city,password)
             }
         }
+    }
 
+    private fun signupUser(firstName: String, lastName: String, email: String, city: String, password: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = SupabaseClient.client.auth.signUpWith(Email){
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+                }
+                if (response.isSuccessful){
+                    val user = response.user
+                    val data = mapOf(
+                        "firstname" to firstName,
+                        "lastname" to lastName,
+                        "email" to email,
+                        "city" to city,
+                        "password" to password,
+                    )
+                }
+            }
         }
     }
 }
