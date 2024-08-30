@@ -63,10 +63,22 @@ class Signup : AppCompatActivity() {
                     val data = mapOf(
                         "firstname" to firstName,
                         "lastname" to lastName,
-                        "email" to email,
                         "city" to city,
-                        "password" to password,
+                        "email" to email,
                     )
+                val insertResponse = SupabaseClient.client.from("users").insert(data).execute()
+                    withContext(Dispatchers.Main){
+                        if(insertResponse.isSuccessful){
+                            startActivity(Intent(this@Signup, LoginActivity::class.java))
+                            finish()
+                        } else {
+                            Toast.makeText(this@Signup,"Failed to save user data: ${insertResponse.error?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            } catch (e: Exception){
+                withContext(Dispatchers.Main){
+                    Toast.makeText(this@Signup,"Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
