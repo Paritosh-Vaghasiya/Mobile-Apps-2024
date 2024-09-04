@@ -15,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.withContext
 
 class Display : AppCompatActivity() {
@@ -48,6 +49,10 @@ class Display : AppCompatActivity() {
                         Toast.makeText(this@Display, "Logout Failed: ${response.error?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main){
+                    Toast.makeText(this@Display, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -57,7 +62,11 @@ class Display : AppCompatActivity() {
         if (user != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = SupabaseClient.client.from("users").select("*").eq("email", user.email).execute()
+                    val response = SupabaseClient.client.from("users").select(columns = Columns.list("email")) {
+                            filter {
+                                user.email?.let { eq ("email", it)}
+                            }
+                        }
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             val userData = response.data?.get(0)
