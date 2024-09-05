@@ -59,16 +59,16 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val response = SupabaseClient.client.auth.signInWithPassword(email, password)
+                val response = SupabaseClient.client.auth.signInWith(Email){
+                    this.email = email
+                    this.password = password
+                }
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         startActivity(Intent(this@LoginActivity, Display::class.java))
                         finish()
                     } else {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Login Failed: ${response.error?.message}",
-                            Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@LoginActivity, "Login Failed: ${response.error?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {

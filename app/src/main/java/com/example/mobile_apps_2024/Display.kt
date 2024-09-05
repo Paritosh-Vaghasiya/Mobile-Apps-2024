@@ -69,8 +69,8 @@ class Display : AppCompatActivity() {
                         }
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
-                            val userData = response.data?.get(0)
-                            val userText = "Welcome ${userData?.get("firstname")} ${userData?.get("lastname")} from ${userData?.get("city")}"
+                            val userData = response.data.get(0)
+                            val userText = "Welcome ${userData.get("firstname")} ${userData.get("lastname")} from ${userData.get("city")}"
                             displayText.text = userText
                         } else {
                             Toast.makeText(this@Display, "Failed to fetch user data: ${response.error?.message}", Toast.LENGTH_LONG).show()

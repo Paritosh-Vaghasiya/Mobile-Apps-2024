@@ -55,11 +55,11 @@ class Signup : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = SupabaseClient.client.auth.signUpWith(Email){
-                    email = email
-                    password = password
+                    this.email = email
+                    this.password = password
                 }
-                if (response.isSuccessful){
-                    val user = response.user
+                if (response != null){
+                    val user = response.id
                     val data = mapOf(
                         "firstname" to firstName,
                         "lastname" to lastName,
