@@ -9,7 +9,6 @@ import android.content.Intent
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import androidx.compose.ui.text.input.KeyboardType.Companion.Email
 import com.example.mobile_apps_2024.SupabaseClient.client
 import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.gotrue.admin.AdminUserUpdateBuilder
@@ -56,7 +55,8 @@ class Signup : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = SupabaseClient.client.auth.signUpWith(Email){
-
+                    email = email
+                    password = password
                 }
                 if (response.isSuccessful){
                     val user = response.user
