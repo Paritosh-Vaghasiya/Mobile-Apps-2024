@@ -45,13 +45,13 @@ class Signup : AppCompatActivity() {
 
             if(firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || city.isEmpty() || password.isEmpty()){
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_LONG).show()
-            } else {
+            }/* else {
                 signupUser(firstName,lastName,email,city,password)
-            }
+            }*/
         }
     }
 
-    private fun signupUser(firstName: String, lastName: String, email: String, city: String, password: String) {
+    /*private fun signupUser(firstName: String, lastName: String, email: String, city: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = SupabaseClient.client.auth.signUpWith(Email){
@@ -66,7 +66,7 @@ class Signup : AppCompatActivity() {
                         "city" to city,
                         "email" to email,
                     )
-                val insertResponse = SupabaseClient.client.from("users").insert(data).execute()
+                val insertResponse = SupabaseClient.client.from("users").insert(data)
                     withContext(Dispatchers.Main){
                         if(insertResponse.isSuccessful){
                             startActivity(Intent(this@Signup, LoginActivity::class.java))
@@ -82,5 +82,5 @@ class Signup : AppCompatActivity() {
                 }
             }
         }
-    }
+    }*/
 }

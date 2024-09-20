@@ -40,9 +40,9 @@ class LoginActivity : AppCompatActivity() {
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 //Popup to warn the user
-            } else {
+            }/* else {
                 loginUser(email, password) //Call the login function with parameters
-            }
+            }*/
 
 
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun loginUser(email: String, password: String) {
+    /*private fun loginUser(email: String, password: String) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val response = SupabaseClient.client.auth.signInWith(Email){
@@ -78,5 +78,5 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
-    }
+    }*/
 }

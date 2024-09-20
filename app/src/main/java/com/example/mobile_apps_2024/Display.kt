@@ -30,24 +30,24 @@ class Display : AppCompatActivity() {
         displayText = findViewById(R.id.display)
         val logoutButton = findViewById<Button>(R.id.logout_button)
 
-        fetchUserData()
+        /*fetchUserData()
 
         logoutButton.setOnClickListener{
             logoutUser()
-        }
+        }*/
     }
 
-    private fun logoutUser() {
+    /*private fun logoutUser() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = SupabaseClient.client.auth.signOut()
                 withContext(Dispatchers.Main){
-                    if(response.isSuccessful){
+                    *//*if(response.isSuccessful){
                         startActivity(Intent(this@Display, LoginActivity::class.java))
                         finish()
                     } else {
                         Toast.makeText(this@Display, "Logout Failed: ${response.error?.message}", Toast.LENGTH_LONG).show()
-                    }
+                    }*//*
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main){
@@ -83,5 +83,5 @@ class Display : AppCompatActivity() {
                 }
             }
         }
-    }
+    }*/
 }
