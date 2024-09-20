@@ -5,6 +5,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import android.content.Intent
 import android.widget.Button
 import android.widget.EditText
@@ -12,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.mobile_apps_2024.R
 import com.example.mobile_apps_2024.SupabaseClient
+import com.example.mobile_apps_2024.UserState
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +25,9 @@ import kotlinx.coroutines.withContext
 
 
 class LoginActivity : AppCompatActivity() {
+
+    private val userState = MutableLiveData<UserState>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -33,50 +39,60 @@ class LoginActivity : AppCompatActivity() {
         val errorMessage = findViewById<TextView>(R.id.error_message)
         val signupButton = findViewById<Button>(R.id.signup_button)
 
+        // Observe changes in userState
+        userState.observe(this, Observer { state ->
+            when (state) {
+                is UserState.Loading -> {
+                    // Show loading indicator
+                    Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show()
+                }
+                is UserState.Success -> {
+                    // Handle success, show message, navigate to next screen
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, Display::class.java))
+                    finish()
+                }
+                is UserState.Error -> {
+                    // Handle error, display error message
+                    errorMessage.text = state.message
+                    Toast.makeText(this, "Error: ${state.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                //Popup to warn the user
-            }/* else {
-                loginUser(email, password) //Call the login function with parameters
-            }*/
-
-
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
+            } else {
+                loginUser(email, password)
             }
         }
-        signupButton.setOnClickListener{
-            startActivity(Intent(this, Display::class.java))
+
+        signupButton.setOnClickListener {
+            startActivity(Intent(this, Signup::class.java))
         }
     }
 
-    /*private fun loginUser(email: String, password: String) {
+    private fun loginUser(email: String, password: String) {
         CoroutineScope(Dispatchers.Main).launch {
+            userState.value = UserState.Loading // Set state to loading
+
             try {
-                val response = SupabaseClient.client.auth.signInWith(Email){
+                val response = SupabaseClient.client.auth.signInWith(Email) {
                     this.email = email
                     this.password = password
                 }
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        startActivity(Intent(this@LoginActivity, Display::class.java))
-                        finish()
-                    } else {
-                        Toast.makeText(this@LoginActivity, "Login Failed: ${response.error?.message}", Toast.LENGTH_LONG).show()
-                    }
+                if (response != null) {
+                    userState.value = UserState.Success("Login successful!")
+                } else {
+                    userState.value = UserState.Error("Login failed: {e.message}")
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main){
-                    Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_LONG)
-                        .show()
-                }
+                userState.value = UserState.Error(e.message ?: "Unknown error")
             }
         }
-    }*/
+    }
 }
