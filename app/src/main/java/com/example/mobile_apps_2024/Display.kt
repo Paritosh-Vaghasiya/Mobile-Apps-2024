@@ -17,10 +17,15 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.mobile_apps_2024.SupabaseClient
 import com.example.mobile_apps_2024.UserState
+import com.example.mobile_apps_2024.User
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 class Display : AppCompatActivity() {
 
@@ -34,23 +39,25 @@ class Display : AppCompatActivity() {
 
         displayText = findViewById(R.id.display)
         val logoutButton = findViewById<Button>(R.id.logout_button)
+        val errorMessage = findViewById<TextView>(R.id.error_message)
 
         // Observe changes in userState
         userState.observe(this, Observer { state ->
             when (state) {
                 is UserState.Loading -> {
-                    Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Loading...", Toast.LENGTH_LONG).show()
                 }
                 is UserState.Success -> {
-                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
                 }
                 is UserState.Error -> {
-                    Toast.makeText(this, "Error: ${state.message}", Toast.LENGTH_LONG).show()
+                    errorMessage.text = state.message
+                    Toast.makeText(this, "Error: $state.message", Toast.LENGTH_LONG).show()
                 }
             }
         })
 
-        //fetchUserData()
+        fetchUserData()
 
         logoutButton.setOnClickListener {
             logoutUser()
@@ -66,7 +73,7 @@ class Display : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     if (response != null) {
                         userState.value = UserState.Success("Logged out successfully!")
-                        startActivity(Intent(this@Display, LoginActivity::class.java))
+                        startActivity(Intent(this@Display, Logout::class.java))
                         finish()
                     } else {
                         userState.value = UserState.Error("Logout Failed: (e.message)")
@@ -80,29 +87,36 @@ class Display : AppCompatActivity() {
         }
     }
 
+    @Serializable
+    data class User(
+        @SerialName("firstName") val firstname: String,
+        @SerialName("lastName") val lastname: String,
+        @SerialName("city") val city: String
+    )
+
     private fun fetchUserData() {
         val user = SupabaseClient.client.auth.currentUserOrNull()
         if (user != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 userState.postValue(UserState.Loading) // Set state to Loading before the operation
                 try {
-                    val response = SupabaseClient.client.from("users").select(columns = Columns.list("firstname", "lastname", "city")) {
-                        filter {
-                            user.email?.let { eq("email", it) }
+                    // Fetch data from Supabase using a suspending function (no execute() required)
+                    val response = SupabaseClient.client
+                        .from("Table_1")
+                        .select(columns = Columns.list("firstName", "lastName", "city")) {
+                            filter { eq("email", user.email ?: "") }
                         }
-                    }
-                    val firstName = SupabaseClient.client.from("users").select().decodeSingle<>()
-                    val lastName = supabase.from("cities").select().decodeSingle<City>()
-                    val city = supabase.from("cities").select().decodeSingle<City>()
+                        .decodeList<User>() // Decodes the response into a list of `User` objects
+                    println(response.toString())
 
                     withContext(Dispatchers.Main) {
-                        if (response != null) {
-                            val userData = response.data[0]
-                            val userText = "Welcome ${firstName)} ${lastName} from ${city}"
+                        if (response.isNotEmpty()) {
+                            val fetchedUser = response[0] // Assuming one user is fetched based on email
+                            val userText = "Welcome ${fetchedUser.firstname} ${fetchedUser.lastname} from ${fetchedUser.city}"
                             displayText.text = userText
                             userState.value = UserState.Success("User data fetched successfully!")
                         } else {
-                            userState.value = UserState.Error("Failed to fetch user data: (e.message)")
+                            userState.value = UserState.Error("No user data found ?(e.message)")
                         }
                     }
                 } catch (e: Exception) {

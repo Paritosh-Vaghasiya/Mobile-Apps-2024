@@ -83,48 +83,51 @@ class Signup : AppCompatActivity() {
             userState.postValue(UserState.Loading) // Set state to loading
 
             try {
-                // Attempt to sign up the user using the provided email and password
-                val response = SupabaseClient.client.auth.signUpWith(Email) {
+                // Sign up user using email and password
+                val signUpResult = SupabaseClient.client.auth.signUpWith(Email) {
                     this.email = email
                     this.password = password
                 }
 
-                // If the signup response is successful
-                if (response != null) {
+                // Proceed to insert user details into 'Table_1' after sign-up
+                if (signUpResult == null) {  // Check if user is returned in signUpResult
                     val data = mapOf(
-                        "firstname" to firstName,
-                        "lastname" to lastName,
+                        "firstName" to firstName,
+                        "lastName" to lastName,
                         "city" to city,
                         "email" to email
                     )
 
-                    // Insert the user's data into the 'users' table
-                    val insertResponse = SupabaseClient.client.from("users").insert(data)
-                    println("Insert Response: $insertResponse")
+                    // Insert user data into 'Table_1'
+                    try {
+                        val insertResponse = SupabaseClient.client.from("Table_1").insert(data)
 
-                    withContext(Dispatchers.Main) {
-                        try {
-                            // Handle the insert result if it's successful
+                        withContext(Dispatchers.Main) {
                             if (insertResponse != null) {
-                                userState.value = UserState.Success("Signup successful!")
+                                userState.value = UserState.Success("Signup and data insertion successful!")
                             } else {
-                                // If insertResponse is null or failed, show an error
                                 userState.value = UserState.Error("Failed to save user data.")
                             }
-                        } catch (e: Exception) {
-                            // Catch and handle any exceptions during the insert
-                            userState.value = UserState.Error("Error saving user data: ${e.message}")
-                            e.printStackTrace() // Print the error for debugging
                         }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            userState.value = UserState.Error("Error inserting data: ${e.message}")
+                        }
+                    }
+                } else {
+                    // Handle sign-up failure
+                    withContext(Dispatchers.Main) {
+                        userState.value = UserState.Error("Signup failed. User not created.")
                     }
                 }
             } catch (e: Exception) {
-                // Catch and handle any exceptions during signup
+                // Handle exceptions (e.g., network or Supabase errors)
                 withContext(Dispatchers.Main) {
                     userState.value = UserState.Error(e.message ?: "Unknown error occurred during signup")
-                    e.printStackTrace() // Print the error for debugging
+                    e.printStackTrace() // Log the error for debugging
                 }
             }
         }
     }
+
 }
