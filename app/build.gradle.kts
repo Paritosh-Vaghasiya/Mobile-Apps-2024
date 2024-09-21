@@ -68,6 +68,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:gotrue-kt:2.6.1")
     implementation("io.github.jan-tennert.supabase:realtime-kt:2.6.1")
     implementation("io.ktor:ktor-client-cio:2.3.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
