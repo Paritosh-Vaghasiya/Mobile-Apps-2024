@@ -17,7 +17,6 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.mobile_apps_2024.SupabaseClient
 import com.example.mobile_apps_2024.UserState
-import com.example.mobile_apps_2024.User
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -76,7 +75,7 @@ class Display : AppCompatActivity() {
                         startActivity(Intent(this@Display, Logout::class.java))
                         finish()
                     } else {
-                        userState.value = UserState.Error("Logout Failed: (e.message)")
+                        userState.value = UserState.Error("Logout Failed")
                     }
                 }
             } catch (e: Exception) {
@@ -107,7 +106,6 @@ class Display : AppCompatActivity() {
                             filter { eq("email", user.email ?: "") }
                         }
                         .decodeList<User>() // Decodes the response into a list of `User` objects
-                    println(response.toString())
 
                     withContext(Dispatchers.Main) {
                         if (response.isNotEmpty()) {
@@ -116,7 +114,7 @@ class Display : AppCompatActivity() {
                             displayText.text = userText
                             userState.value = UserState.Success("User data fetched successfully!")
                         } else {
-                            userState.value = UserState.Error("No user data found ?(e.message)")
+                            userState.value = UserState.Error("No user data found")
                         }
                     }
                 } catch (e: Exception) {

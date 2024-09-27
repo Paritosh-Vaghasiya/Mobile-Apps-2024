@@ -87,7 +87,7 @@ class LoginActivity : AppCompatActivity() {
                 if (response != null) {
                     userState.value = UserState.Success("Login successful!")
                 } else {
-                    userState.value = UserState.Error("Login failed: {e.message}")
+                    userState.value = UserState.Error("Login failed")
                 }
             } catch (e: Exception) {
                 userState.value = UserState.Error(e.message ?: "Unknown error")
